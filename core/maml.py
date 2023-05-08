@@ -232,10 +232,23 @@ class MAML:
             # Use util.score to compute accuracies.
             # Make sure to populate outer_loss_batch, accuracies_support_batch,
             # and accuracy_query_batch.
+            
+            parameters, accuracies_support_task = self._inner_loop(images=images_support, labels=labels_support, train=train)
+            
+            logits = self._forward(images=images_query, parameters=parameters)
+            
+            loss = F.cross_entropy(logits, labels_query, reduction='mean')
+            
+            accuracy_query_task = util.score(logits=logits, labels=labels_query)
+            
+            outer_loss_batch.append(loss)
+            accuracies_support_batch.append(accuracies_support_task)
+            accuracy_query_batch.append(accuracy_query_task)
 
             # ********************************************************
             # ******************* YOUR CODE HERE *********************
             # ********************************************************
+            
         outer_loss = torch.mean(torch.stack(outer_loss_batch))
         accuracies_support = np.mean(
             accuracies_support_batch,
